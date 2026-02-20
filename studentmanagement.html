@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input id="name" type="text" placeholder="enter name:"> 
+    <input id="email" type="email" placeholder="enter email:">
+    <input id="marks" type="number" placeholder="enter marks:">
+    <button type="button" onclick="addStudent()">ADD Student</button>
+    <button type="button" onclick="clearFields()">Clear</button>
+    <h3> Student List:</h3>
+    <ul id="studentList"></ul>
+    <script>
+        let students=[];
+        let emailSet=new Set();
+        let gradeMap=new Map();
+        function addStudent(){
+            try{
+                debugger;
+
+                const name=document.getElementById("name").value;
+                const email=document.getElementById("email").value;
+                const marks=Number(document.getElementById("marks").value);
+
+                const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!emailPattern.test(email)){
+                    throw new Error("Invalid Email Format");
+                }
+                if (marks<0 || marks>100){
+                    throw new Error("Invalid Marks");
+                }
+                if (emailSet.has(email)){
+                    throw new Error("email already exists");
+                }
+
+                emailSet.add(email);
+
+                const student ={
+                    name,
+                    email,
+                    marks,
+                    date: new Date(),
+                    getGrade: function(){
+                        return calculateGrade(this.marks);
+                    }
+                };
+
+                students.push(student);
+                gradeMap.set(email, student.getGrade());
+                displayStudents();
+                clearFields();
+            }
+            catch (error){
+                alert(error.message);
+            }
+        }
+        function calculateGrade(marks){
+            if (marks>=90)  return "A";
+            if (marks>=75)  return "B";
+            if (marks>=60)  return "C";
+            if (marks>=40)  return "D";
+            return "FAIL";
+        }
+        function displayStudents(){
+            const list=document.getElementById("studentList");
+            list.innerHTML="";
+            students.forEach((student) =>{
+                const{name,email,marks,date}=student;
+                const li=document.getElementById("li");
+                li.textContent = `
+                Name: ${name},
+                Email: ${email},
+                Marks: ${marks},
+                Grade: ${gradeMap.get(email)},
+                Added On: ${date.toLocaleDateString()}
+                `;
+                list.appendChild(li);
+            });
+            calculateAverage();
+        }
+        function calculateAverage() {
+            if (students.length === 0) return;
+            let total = 0;
+            for (let student of students) {   // for...of iteration
+                total += student.marks;
+            }
+            const average = Math.round(total / students.length);
+
+            console.log("Class Average:", average);
+        }
+        function clearFields() {
+            document.getElementById("name").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("marks").value = "";
+        }
+</script>
+</body>
+</html>
